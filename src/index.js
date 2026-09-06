@@ -41,7 +41,7 @@ function rerenderMenu(activeHabit) {
         if(activeHabit.id === habit.id){
             el.classList.add('menu_but_active');
         }
-        
+
         page.menu.appendChild(el);
     }
 }
@@ -159,7 +159,7 @@ function addingHabit(event) {
     habits =[
         ...habits,
         {
-            "id": habits.length + 1,
+            "id": Math.round((Math.random() + 1) * 10000),
             "name": comm,
             "target": goal,
             "days": []
