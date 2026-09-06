@@ -1,0 +1,263 @@
+body{
+    background-color: #cee6b3;
+    color: #3d492d;
+    margin: 0px;
+    display: flex;
+}
+
+button{
+    cursor: pointer;
+}
+
+header{
+    background-color: #f9fff2;
+    width: 220px;
+    height: 100%;
+    position: fixed;
+    top: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+h1{
+    font-size: 48px;
+}
+.menu{
+    height: 70%;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    scrollbar-width: none;
+}
+.menu_but{
+    width: 60px;
+    height: 60px;
+    border-radius: 10px;
+    margin: 15px;
+    flex-shrink: 0;
+}
+.menu_but>img{
+    width: 35px;
+    height: 35px;
+}
+.menu_but:hover{
+    background-color: #ffffff;
+}
+.menu_but_active.habit_but{
+    background-color: #cee6b3;
+}
+.habit_but{
+    background-color: #6b963a;
+}
+header>hr{
+    background-color: #cee6b3;
+    width: 90px;
+    height: 3px;
+    border: none;
+    border-radius: 3px;
+}
+.add_but{
+    background-color: #f9fff2;
+    border: 2px solid #3d492d;
+}
+
+main{
+    width: calc(100% - 10vw - 220px);
+    font-family: monospace;
+    margin: 5vw 8vw 0 calc(220px + 8vw);
+}
+
+#main_h{
+    width: 100%;
+    margin-bottom: 35px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+}
+h2{
+    font-size: 48px;
+    margin: 0 0 20px 0;
+}
+#prog{
+    padding: 20px;
+    border: 5px solid #f9fff2;
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+#prog>p{
+    font-size: 24px;
+    margin: 0;
+}
+
+hr{
+    background-color: #f9fff2;
+    height: 5px;
+    border: none;
+    border-radius: 5px;
+    margin: 20px 0px;
+}
+
+#days_box{
+    margin-top: 4vw;
+    display: flex;
+    overflow: auto;
+    scrollbar-width: none;
+    gap: 50px;
+}
+.day{
+    background-color: #f9fff2;
+    width: 270px;
+    height: 450px;
+    font-size: 18px;
+    padding: 25px;
+    border-radius: 15px;
+    margin: 20px;
+    flex: 0 0 auto;
+}
+.last_day{
+    margin-right: 35%;
+}
+.day_h{
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+h3{
+    font-size: 24px;
+    margin: 0;
+}
+.del_but{
+    background: none;
+    border: none;
+}
+.del_but>img{
+    width: 35px;
+    height: 35px;
+}
+.day>hr{
+    background-color: #3d492d;
+    height: 3px;
+    border: none;
+    border-radius: 3px;
+}
+.day_comm{
+    width: 100%;
+    height: 367px;
+    font-size: 24px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+}
+form{
+    height: 100%;
+}
+.comm{
+    height: 100%;
+    font-size: 18px;
+    padding: 20px;
+    border: 3px solid #cee6b3;
+    border-radius: 10px;
+    resize: none;
+}
+.empty{
+    border: 3px solid red;
+}
+#add_day{
+    background-color: #cee6b3;
+    height: 45px;
+    width: 250px;
+    font-size: 18px;
+    border: none;
+    border-radius: 10px;
+}
+#add_day:hover{
+    background-color: #3d492d;
+    color: #f9fff2;
+}
+
+.cover{
+    background: rgba(0, 0, 0, 0.5);
+    width: 100%;
+    height: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.closed{
+    display: none;
+}
+.cover_filling{
+    background-color: #cee6b3;
+    padding: 50px;
+    border-radius: 15px;
+    display: flex;
+    flex-direction: column;
+}
+.close{
+    background: none;
+    width: 50px;
+    height: 50px;
+    padding: 0;
+    border: none;
+    position: absolute;
+    top: 30px;
+    right: 30px;
+}
+.new_habit{
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 35px;
+}
+input{
+    background-color: #f9fff2;
+    width: 100%;
+    height: 40px;
+    padding: 5px 10px;
+    border: none;
+    border-radius: 10px;
+}
+input:active{
+    background-color: #ffffff;
+}
+::placeholder{
+    font-size: 18px;
+}
+.add{
+    background-color: #f9fff2;
+    color: #3d492d;
+    width: 200px;
+    height: 50px;
+    font-size: 18px;
+    border: none;
+    border-radius: 10px;
+}
+.add:hover{
+    background-color: #6b963a;
+    color: #f9fff2;
+}
+
+/* @media (max-width: 400px) {
+    header {
+        display: none;
+        z-index: 1;
+    }
+    main {
+        width: calc(100% - 40px);
+        margin: 25px 20px 0;
+    }
+    h2 {
+        font-size: 28px;
+    }
+} */

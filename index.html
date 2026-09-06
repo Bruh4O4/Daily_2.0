@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./static/index.css">
+    <title>Daily 2.0</title>
+</head>
+<body>
+    <header>
+        <h1>Daily 2.0</h1>
+        <button class="add_but menu_but" onclick="showAdding()">
+            <img src="./static/img/Add.svg" alt="+">
+        </button>
+
+        <hr>
+
+        <div class="menu"></div>
+    </header>
+
+    <main>
+        <section id="main_h">
+            <h2 class="name"></h2>
+            <div id="prog">
+                <h3>Прогресс по дням: </h3>
+                <p class="prog_days">х из х</p>
+            </div>
+        </section>
+
+        <hr>
+
+        <section id="days_box">
+        </section>
+        
+        <section class="cover closed">
+            <div class="cover_filling">
+                <button class="close" onclick="closeAdding()">
+                    <img src="./static/img/cross.svg" alt="">
+                </button>
+
+                <h2>Новая привычка</h2>
+                <hr>
+                <form class="new_habit" onsubmit="adding(event)">
+                    <input 
+                        type="text"
+                        id="habit_name"
+                        name="habit_name"
+                        placeholder="Название"
+                        required
+                    >
+                    <input 
+                        type="number"
+                        id="goal"
+                        name="goal"
+                        placeholder="Цель (кол-во дней)"
+                        required
+                    >
+
+                    <button class="add">Добавить</button>
+                </form>
+            </div>
+        </section>
+    </main>
+    <script src="./src/index.js"></script>
+</body>
+</html>
