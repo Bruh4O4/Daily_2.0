@@ -7,7 +7,8 @@ const page = {
     menu: document.querySelector('.menu'),
     header: {
         h: document.querySelector('.name'),
-        prog_days: document.querySelector('.prog_days')
+        prog_days: document.querySelector('.prog_days'),
+        delHabit: document.querySelector('.delHabit_but')
     },
     content: {
         days_box: document.querySelector('#days_box'),
@@ -28,32 +29,26 @@ function saveData() {
 }
 
 function rerenderMenu(activeHabit) {
+    page.menu.innerHTML = '';
     for(const habit of habits) {
-        const existed = document.querySelector(`[habit_id="${habit.id}"]`)
-        if(!existed){
-            const el = document.createElement('button');
-            el.setAttribute('habit_id', habit.id);
-            el.classList.add('menu_but');
-            el.classList.add('habit_but');
-            el.addEventListener('click', () => rerender(habit.id));
-            el.innerHTML = '<img src="./static/img/Star.svg" alt="">';
-            if(activeHabit.id === habit.id){
-                el.classList.add('menu_but_active');
-            }
-            page.menu.appendChild(el);
-            continue;
-        }
+        const el = document.createElement('button');
+        el.setAttribute('habit_id', habit.id);
+        el.classList.add('menu_but');
+        el.classList.add('habit_but');
+        el.addEventListener('click', () => rerender(habit.id));
+        el.innerHTML = '<img src="./static/img/Star.svg" alt="">';
 
         if(activeHabit.id === habit.id){
-            existed.classList.add('menu_but_active');
-        } else {
-            existed.classList.remove('menu_but_active');
+            el.classList.add('menu_but_active');
         }
+        
+        page.menu.appendChild(el);
     }
 }
 
 function renderHead(activeHabit) {
     page.header.h.innerText = activeHabit.name;
+    page.header.delHabit.setAttribute('habit_id', activeHabit.id);
     if(activeHabit.days.length < activeHabit.target) {
         page.header.prog_days.innerText = `${activeHabit.days.length} из ${activeHabit.target}`;    
     } else {
@@ -153,7 +148,7 @@ function closeAdding() {
     document.querySelector('.cover').classList.add('closed');
 }
 
-function adding(event) {
+function addingHabit(event) {
     event.preventDefault();
     const form = event.target;
 
@@ -177,6 +172,19 @@ function adding(event) {
     rerender(habits[0].id);
     closeAdding();
     saveData();
+}
+
+function delHabit(){
+    const habitToDel = page.header.delHabit.getAttribute('habit_id');
+    habits = habits.filter(h => {
+        if(h.id == habitToDel){
+            return false
+        }
+        return true
+    })
+
+    saveData();
+    rerender(habits[0].id);
 }
 
 (() => {

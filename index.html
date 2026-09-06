@@ -25,6 +25,9 @@
                 <h3>Прогресс по дням: </h3>
                 <p class="prog_days">х из х</p>
             </div>
+            <button class="delHabit_but" onclick="delHabit()">
+                <img src="./static/img/delete.svg" alt="">
+            </button>
         </section>
 
         <hr>
@@ -40,7 +43,7 @@
 
                 <h2>Новая привычка</h2>
                 <hr>
-                <form class="new_habit" onsubmit="adding(event)">
+                <form class="new_habit" onsubmit="addingHabit(event)">
                     <input 
                         type="text"
                         id="habit_name"

@@ -69,20 +69,21 @@ main{
 
 #main_h{
     width: 100%;
-    margin-bottom: 35px;
     display: flex;
-    justify-content: space-between;
     align-items: center;
     flex-wrap: wrap;
+    gap: 20px;
 }
 h2{
     font-size: 48px;
-    margin: 0 0 20px 0;
+    margin: 20px 0;
+    flex: 1;
 }
 #prog{
     padding: 20px;
     border: 5px solid #f9fff2;
     border-radius: 15px;
+    margin: 20px 0;
     display: flex;
     align-items: center;
     flex-wrap: wrap;
@@ -91,6 +92,16 @@ h2{
 #prog>p{
     font-size: 24px;
     margin: 0;
+}
+.delHabit_but{
+    background: none;
+    padding: 0;
+    border: none;
+    margin: 20px 0;
+}
+.delHabit_but>img{
+    width: 48px;
+    height: 48px;
 }
 
 hr{
