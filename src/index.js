@@ -1,193 +1,281 @@
-'use strict'
+class HabitStorage {
+    #KEY = 'HABIT_KEY'
 
-let habits = [];
-const HABIT_KEY = 'HABIT_KEY'
-
-const page = {
-    menu: document.querySelector('.menu'),
-    header: {
-        h: document.querySelector('.name'),
-        prog_days: document.querySelector('.prog_days'),
-        delHabit: document.querySelector('.delHabit_but')
-    },
-    content: {
-        days_box: document.querySelector('#days_box'),
-        next_day: document.querySelector('.day_next')
-    }
-}
-
-function loadData() {
-    const habitString = localStorage.getItem(HABIT_KEY);
-    const habitArr = JSON.parse(habitString);
-    if (Array.isArray(habitArr)) {
-        habits = habitArr;
-    }
-}
-
-function saveData() {
-    localStorage.setItem(HABIT_KEY, JSON.stringify(habits))
-}
-
-function rerenderMenu(activeHabit) {
-    page.menu.innerHTML = '';
-    for(const habit of habits) {
-        const el = document.createElement('button');
-        el.setAttribute('habit_id', habit.id);
-        el.classList.add('menu_but');
-        el.classList.add('habit_but');
-        el.addEventListener('click', () => rerender(habit.id));
-        el.innerHTML = '<img src="./static/img/Star.svg" alt="">';
-
-        if(activeHabit.id === habit.id){
-            el.classList.add('menu_but_active');
+    loadData() {
+        try{
+            const habitString = localStorage.getItem(this.#KEY);
+            const habitArr = JSON.parse(habitString);
+            return habitArr;
+        } catch {
+            return [];
         }
+    }
 
-        page.menu.appendChild(el);
+    saveData(data) {
+        localStorage.setItem(this.#KEY, JSON.stringify(data))
     }
 }
 
-function renderHead(activeHabit) {
-    page.header.h.innerText = activeHabit.name;
-    page.header.delHabit.setAttribute('habit_id', activeHabit.id);
-    if(activeHabit.days.length < activeHabit.target) {
-        page.header.prog_days.innerText = `${activeHabit.days.length} из ${activeHabit.target}`;    
-    } else {
-        page.header.prog_days.innerText = `Цель достигнута!`;
+class HabitStore {
+    constructor(storage) {
+        this.storage = storage;
+        this.habits = this.storage.loadData();
+        this.activeHabit = this.habits[0] || null;
     }
-    
-}
 
-function rerenderDays(activeHabit) {
-    page.content.days_box.innerHTML = '';
+    addHabit(newHabit) {
+        this.habits.push(newHabit);
+        this.storage.saveData(this.habits);
+        this.activeHabit = newHabit;
+    }
+    delHabit(habitId){
+        this.habits = this.habits.filter(h => {
+            if(h.id == habitId){
+                return false
+            }
+            return true
+        })
 
-    for(const day in activeHabit.days){
-        const el = document.createElement('div');
-        el.classList.add('day');
-        el.innerHTML = `<div class="day_h">
-                    <h3>День ${Number(day) + 1}</h3>
-                    <button class="del_but" onclick="delDay(${activeHabit.id}, ${day})">
-                        <img src="./static/img/delete.svg" alt="">
-                    </button>
-                </div>
-                <hr>
-                <div class="day_comm">
-                    ${activeHabit.days[day].comment}
-                </div>`;
+        this.storage.saveData(this.habits);
+    }
+
+    addDay(thisHabit, comment) {
+        this.habits = this.habits.map(habit => {
+            if(habit.id == thisHabit.id){
+                return {
+                    ...habit,
+                    days: habit.days.concat(comment)
+                }
+            }
+            return habit;
+        });
+
+        this.activeHabit = this.habits.find(h => h.id == thisHabit.id);
+        this.storage.saveData(this.habits);
+    }
+    delDay(activeHabitId, commIndex) {
+        this.habits = this.habits.map(habit => {
+            if(habit.id === activeHabitId){
+                habit.days.splice(commIndex, 1);
+            }
+            return habit;
+        })
         
-        page.content.days_box.appendChild(el);
+        this.activeHabit = this.habits.find(h => h.id == activeHabitId);
+        this.storage.saveData(this.habits);
     }
-    
-    if(activeHabit.days.length < activeHabit.target) {
+}
+
+class AddDayForm {
+    constructor(activeHabit, add) {
+        this.activeHabit = activeHabit;
+        this.add = add;
+    }
+
+    render(nextDayNum) {
         const el = document.createElement('div');
         el.classList.add('day', 'last_day');
         el.innerHTML = `<div class="day_h">
-                        <h3 class="next_day">День ${activeHabit.days.length + 1}</h3>
+                        <h3 class="next_day">День ${nextDayNum}</h3>
                     </div>
                     <hr>
-                    <form class="day_comm" onsubmit="addDays(event)" data-habit-id="${activeHabit.id}">
+                    <form class="day_comm" data-habit-id="${this.activeHabit.id}">
                         <textarea name="comment" class="comm" placeholder="..." maxlength="250"></textarea>
                         <button id="add_day">Добавить день</button>
                     </form>`;
         
-        page.content.days_box.appendChild(el);
+        el.querySelector('.day_comm').addEventListener('submit', (event) => {
+            event.preventDefault();
+            const comment = this.handelSubmit(event);
+            this.add(comment);
+        });
+
+        return el;
+    }
+
+    handelSubmit(event) {
+        event.preventDefault();
+        const form = event.target;
+        const data = new FormData(form);
+        const comment = data.get('comment');
+        
+        form['comment'].classList.remove('empty');
+        if(!comment){
+            form['comment'].classList.add('empty');
+        }
+
+        form['comment'].value = '';
+
+        return [{ comment }]
     }
 }
 
-function rerender(activeHabitId) {
-    const activeHabit = habits.find(habit => habit.id === activeHabitId);
-    if(!activeHabit) return;
+class AddHabitForm {
+    constructor(onAdd) {
+        this.onAdd = onAdd;
 
-    rerenderMenu(activeHabit);
-    renderHead(activeHabit);
-    rerenderDays(activeHabit);
-}
-
-function addDays(event)  {
-    event.preventDefault();
-    const form = event.target;
-
-    const data = new FormData(form);
-    const comment = data.get('comment');
-    
-    form['comment'].classList.remove('empty');
-    if(!comment){
-        form['comment'].classList.add('empty');
+        document.querySelector('.new_habit').addEventListener('submit', (event) => {
+            this.handleSubmit(event)}
+        );
     }
 
-    habits = habits.map(habit => {
-        if(habit.id == form.dataset.habitId){
-            return {
-                ...habit,
-                days: habit.days.concat([{ comment }])
-            }
-        }
-        return habit;
-    });
-    form['comment'].value = '';
+    handleSubmit(event) {
+        event.preventDefault();
+        const form = event.target;
 
-    rerender(Number(form.dataset.habitId));
-    saveData();
-}
+        const data = new FormData(form);
+        const comm = data.get('habit_name');
+        const goal = Number(data.get('goal'));
 
-function delDay(activeHabitId, commIndex) {
-    habits = habits.map(habit => {
-        if(habit.id === activeHabitId){
-            habit.days.splice(commIndex, 1);
-        }
-        return habit;
-    })
-
-    rerender(activeHabitId);
-    saveData();
-}
-
-function showAdding() {
-    document.querySelector('.cover').classList.remove('closed');
-}
-function closeAdding() {
-    document.querySelector('.cover').classList.add('closed');
-}
-
-function addingHabit(event) {
-    event.preventDefault();
-    const form = event.target;
-
-    const data = new FormData(form);
-    const comm = data.get('habit_name');
-    const goal = Number(data.get('goal'));
-
-    habits =[
-        ...habits,
-        {
+        const newHabit = {
             "id": Math.round((Math.random() + 1) * 10000),
             "name": comm,
             "target": goal,
             "days": []
         }
-    ];
-    
-    form['habit_name'].value = '';
-    form['goal'].value = '';
-    
-    rerender(habits[0].id);
-    closeAdding();
-    saveData();
+
+        form['habit_name'].value = '';
+        form['goal'].value = '';
+        this.closeAdding();
+
+        this.onAdd(newHabit);
+    }
+
+    showAdding() {
+        document.querySelector('.cover').classList.remove('closed');
+    }
+    closeAdding() {
+        document.querySelector('.cover').classList.add('closed');
+    }
 }
 
-function delHabit(){
-    const habitToDel = page.header.delHabit.getAttribute('habit_id');
-    habits = habits.filter(h => {
-        if(h.id == habitToDel){
-            return false
+class App {
+    page = {
+        menu: document.querySelector('.menu'),
+        header: {
+            h: document.querySelector('.name'),
+            prog_days: document.querySelector('.prog_days'),
+            delHabit: document.querySelector('.delHabit_but')
+        },
+        content: {
+            days_box: document.querySelector('#days_box'),
+            next_day: document.querySelector('.day_next')
         }
-        return true
-    })
+    }
 
-    saveData();
-    rerender(habits[0].id);
+    constructor() {
+        this.storage = new HabitStorage();
+        this.store = new HabitStore(this.storage);
+        this.AddHabitForm = new AddHabitForm((newHabit) => {
+            this.store.addHabit(newHabit);
+            this.rerender(newHabit);
+        });
+
+        this.init();
+        if(this.store.habits[0]){
+            this.rerender(this.store.habits[0]);
+        } else {
+            this.rerenderEmpty();
+        }
+    }
+
+
+    init() {
+        document.querySelector('.add_but').addEventListener('click', () => this.AddHabitForm.showAdding());
+        document.querySelector('.close').addEventListener('click', () => this.AddHabitForm.closeAdding());
+        document.querySelector('.delHabit_but').addEventListener('click', () => {
+            const habitToDel = this.page.header.delHabit.getAttribute('habit_id');
+            this.store.delHabit(habitToDel);
+
+            if(this.store.habits[0]){
+                this.rerender(this.store.habits[0]);
+            } else {
+                this.rerenderEmpty();
+            }
+        });
+        if(document.querySelector('.day_comm')) {
+        }
+    }
+
+    rerenderMenu(activeHabit) {
+        this.page.menu.innerHTML = '';
+        for(const habit of this.store.habits) {
+            const el = document.createElement('button');
+            el.setAttribute('habit_id', habit.id);
+            el.classList.add('menu_but');
+            el.classList.add('habit_but');
+            el.addEventListener('click', () => this.rerender(habit));
+            el.innerHTML = '<img src="./static/img/Star.svg" alt="">';
+
+            if(activeHabit.id === habit.id){
+                el.classList.add('menu_but_active');
+            }
+
+            this.page.menu.appendChild(el);
+        }
+    }
+
+    renderHead(activeHabit) {
+        this.page.header.h.innerText = activeHabit.name;
+        this.page.header.delHabit.setAttribute('habit_id', activeHabit.id);
+        if(activeHabit.days.length < activeHabit.target) {
+            this.page.header.prog_days.innerText = `${activeHabit.days.length} из ${activeHabit.target}`;    
+        } else {
+            this.page.header.prog_days.innerText = `Цель достигнута!`;
+        }
+    }
+
+    rerenderDays(activeHabit) {
+        this.page.content.days_box.innerHTML = '';
+
+        if(!activeHabit) return;
+
+        for(const day in activeHabit.days){
+            const el = document.createElement('div');
+            el.classList.add('day');
+            el.innerHTML = `<div class="day_h">
+                        <h3>День ${Number(day) + 1}</h3>
+                        <button class="del_but">
+                            <img src="./static/img/delete.svg" alt="">
+                        </button>
+                    </div>
+                    <hr>
+                    <div class="day_comm">
+                        ${activeHabit.days[day].comment}
+                    </div>`;
+            
+            el.querySelector('.del_but').addEventListener('click', () => {
+                this.store.delDay(activeHabit.id, day);
+                this.rerender(this.store.activeHabit);
+            });
+            
+            this.page.content.days_box.appendChild(el);
+        }
+        
+        if(activeHabit.days.length < activeHabit.target) {
+            const nextDayForm = new AddDayForm(activeHabit, (comment) => {
+                this.store.addDay(activeHabit, comment);
+                this.rerender(this.store.activeHabit);
+            });
+
+            const nextDayNum = activeHabit.days.length + 1;
+            this.page.content.days_box.appendChild(nextDayForm.render(nextDayNum));
+        }
+    }
+
+    rerender(activeHabit) {
+        if(!activeHabit) return;
+
+        this.rerenderMenu(activeHabit);
+        this.renderHead(activeHabit);
+        this.rerenderDays(activeHabit);
+    }
+
+    rerenderEmpty() {
+        //
+    }
 }
 
-(() => {
-    loadData();
-    rerender(habits[0].id);
-})();
+document.addEventListener('DOMContentLoaded', () => {
+    new App();
+});

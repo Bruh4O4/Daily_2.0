@@ -9,7 +9,7 @@
 <body>
     <header>
         <h1>Daily 2.0</h1>
-        <button class="add_but menu_but" onclick="showAdding()">
+        <button class="add_but menu_but">
             <img src="./static/img/Add.svg" alt="+">
         </button>
 
@@ -25,7 +25,7 @@
                 <h3>Прогресс по дням: </h3>
                 <p class="prog_days">х из х</p>
             </div>
-            <button class="delHabit_but" onclick="delHabit()">
+            <button class="delHabit_but">
                 <img src="./static/img/delete.svg" alt="">
             </button>
         </section>
@@ -37,13 +37,13 @@
         
         <section class="cover closed">
             <div class="cover_filling">
-                <button class="close" onclick="closeAdding()">
+                <button class="close">
                     <img src="./static/img/cross.svg" alt="">
                 </button>
 
                 <h2>Новая привычка</h2>
                 <hr>
-                <form class="new_habit" onsubmit="addingHabit(event)">
+                <form class="new_habit">
                     <input 
                         type="text"
                         id="habit_name"
