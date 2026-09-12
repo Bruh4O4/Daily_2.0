@@ -23,6 +23,10 @@ class HabitStore {
         this.activeHabit = this.habits[0] || null;
     }
 
+    changeActiveHabit(newActiveHabitId) {
+        this.activeHabit = this.habits.find(h => h.id == newActiveHabitId);
+    }
+
     addHabit(newHabit) {
         this.habits.push(newHabit);
         this.storage.saveData(this.habits);
@@ -34,8 +38,9 @@ class HabitStore {
                 return false
             }
             return true
-        })
+        });
 
+        this.activeHabit = this.habits[0] || null;
         this.storage.saveData(this.habits);
     }
 
@@ -168,12 +173,12 @@ class App {
         this.store = new HabitStore(this.storage);
         this.AddHabitForm = new AddHabitForm((newHabit) => {
             this.store.addHabit(newHabit);
-            this.rerender(newHabit);
+            this.rerender();
         });
 
         this.init();
-        if(this.store.habits[0]){
-            this.rerender(this.store.habits[0]);
+        if(this.store.activeHabit){
+            this.rerender();
         } else {
             this.rerenderEmpty();
         }
@@ -187,8 +192,8 @@ class App {
             const habitToDel = this.page.header.delHabit.getAttribute('habit_id');
             this.store.delHabit(habitToDel);
 
-            if(this.store.habits[0]){
-                this.rerender(this.store.habits[0]);
+            if(this.store.activeHabit){
+                this.rerender();
             } else {
                 this.rerenderEmpty();
             }
@@ -204,7 +209,10 @@ class App {
             el.setAttribute('habit_id', habit.id);
             el.classList.add('menu_but');
             el.classList.add('habit_but');
-            el.addEventListener('click', () => this.rerender(habit));
+            el.addEventListener('click', () => {
+                this.store.changeActiveHabit(habit.id);
+                this.rerender();
+            });
             el.innerHTML = '<img src="./static/img/Star.svg" alt="">';
 
             if(activeHabit.id === habit.id){
@@ -246,7 +254,7 @@ class App {
             
             el.querySelector('.del_but').addEventListener('click', () => {
                 this.store.delDay(activeHabit.id, day);
-                this.rerender(this.store.activeHabit);
+                this.rerender();
             });
             
             this.page.content.days_box.appendChild(el);
@@ -255,7 +263,7 @@ class App {
         if(activeHabit.days.length < activeHabit.target) {
             const nextDayForm = new AddDayForm(activeHabit, (comment) => {
                 this.store.addDay(activeHabit, comment);
-                this.rerender(this.store.activeHabit);
+                this.rerender();
             });
 
             const nextDayNum = activeHabit.days.length + 1;
@@ -263,7 +271,8 @@ class App {
         }
     }
 
-    rerender(activeHabit) {
+    rerender() {
+        const activeHabit = this.store.activeHabit;
         if(!activeHabit) return;
 
         this.rerenderMenu(activeHabit);
