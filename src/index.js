@@ -224,6 +224,9 @@ class App {
     }
 
     renderHead(activeHabit) {
+        if(this.page.header.delHabit.classList.contains('closed')) {
+            document.querySelector('.delHabit_but').classList.remove('closed');
+        }
         this.page.header.h.innerText = activeHabit.name;
         this.page.header.delHabit.setAttribute('habit_id', activeHabit.id);
         if(activeHabit.days.length < activeHabit.target) {
@@ -281,7 +284,12 @@ class App {
     }
 
     rerenderEmpty() {
-        //
+        this.page.header.h.innerText = 'Создайте свою первую привычку!';
+        this.page.header.prog_days.innerText = '?';
+        document.querySelector('.delHabit_but').classList.add('closed');
+
+        this.page.content.days_box.innerHTML = '';
+        this.page.menu.innerHTML = '';
     }
 }
 
