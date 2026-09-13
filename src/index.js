@@ -2,11 +2,15 @@ class HabitStorage {
     #KEY = 'HABIT_KEY'
 
     loadData() {
-        try{
+        try {
             const habitString = localStorage.getItem(this.#KEY);
+            if(!habitString) {
+                return [];
+            }
             const habitArr = JSON.parse(habitString);
-            return habitArr;
+            return Array.isArray(habitArr) ? habitArr : [];
         } catch {
+            console.error('Ошибка загрузки данных');
             return [];
         }
     }
