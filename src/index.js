@@ -217,7 +217,7 @@ class App {
                 this.store.changeActiveHabit(habit.id);
                 this.rerender();
             });
-            el.innerHTML = '<img src="./static/img/Star.svg" alt="">';
+            el.innerHTML = '<img src="./img/Star.svg" alt="">';
 
             if(activeHabit.id === habit.id){
                 el.classList.add('menu_but_active');
@@ -251,7 +251,7 @@ class App {
             el.innerHTML = `<div class="day_h">
                         <h3>День ${Number(day) + 1}</h3>
                         <button class="del_but">
-                            <img src="./static/img/delete.svg" alt="">
+                            <img src="./img/delete.svg" alt="">
                         </button>
                     </div>
                     <hr>
