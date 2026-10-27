@@ -1,30 +1,52 @@
 class HabitStorage {
-    #KEY = 'HABIT_KEY'
-
-    loadData() {
+    async loadData() {
         try {
-            const habitString = localStorage.getItem(this.#KEY);
-            if(!habitString) {
-                return [];
+            const res = await fetch('/habits');
+
+            if (!res.ok) {
+                throw new Error(`Ошибка сервера: ${res.status}`);
             }
-            const habitArr = JSON.parse(habitString);
-            return Array.isArray(habitArr) ? habitArr : [];
+            const result = await res.json();
+            return result
         } catch {
             console.error('Ошибка загрузки данных');
             return [];
         }
     }
 
-    saveData(data) {
-        localStorage.setItem(this.#KEY, JSON.stringify(data))
+    async saveData(data) {
+        try {
+            const res = await fetch('/habits', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            });
+
+            if (!res.ok) {
+                throw new Error(`Ошибка сервера: ${res.status}`);
+            }
+        } catch {
+            console.error('Ошибка при сохранении данных');
+        }
     }
 }
 
 class HabitStore {
     constructor(storage) {
         this.storage = storage;
-        this.habits = this.storage.loadData();
-        this.activeHabit = this.habits[0] || null;
+        this.habits = [];
+        this.activeHabit = null;
+    }
+    
+    async init () {
+        try {
+            this.habits = await this.storage.loadData();
+            this.activeHabit = this.habits[0];
+        } catch (err) {
+            console.error('Не удалось загрузить данные в store', err.message);
+        }
     }
 
     changeActiveHabit(newActiveHabitId) {
@@ -171,7 +193,7 @@ class App {
             next_day: document.querySelector('.day_next')
         }
     }
-
+    
     constructor() {
         this.storage = new HabitStorage();
         this.store = new HabitStore(this.storage);
@@ -181,31 +203,30 @@ class App {
         });
 
         this.init();
+    }
+    
+    
+    async init() {
+        await this.store.init();
         if(this.store.activeHabit){
             this.rerender();
         } else {
             this.rerenderEmpty();
         }
-    }
-
-
-    init() {
         document.querySelector('.add_but').addEventListener('click', () => this.AddHabitForm.showAdding());
         document.querySelector('.close').addEventListener('click', () => this.AddHabitForm.closeAdding());
         document.querySelector('.delHabit_but').addEventListener('click', () => {
             const habitToDel = this.page.header.delHabit.getAttribute('habit_id');
             this.store.delHabit(habitToDel);
-
+            
             if(this.store.activeHabit){
                 this.rerender();
             } else {
                 this.rerenderEmpty();
             }
         });
-        if(document.querySelector('.day_comm')) {
-        }
     }
-
+    
     rerenderMenu(activeHabit) {
         this.page.menu.innerHTML = '';
         for(const habit of this.store.habits) {
@@ -218,15 +239,15 @@ class App {
                 this.rerender();
             });
             el.innerHTML = '<img src="./img/Star.svg" alt="">';
-
+            
             if(activeHabit.id === habit.id){
                 el.classList.add('menu_but_active');
             }
-
+            
             this.page.menu.appendChild(el);
         }
     }
-
+    
     renderHead(activeHabit) {
         if(this.page.header.delHabit.classList.contains('closed')) {
             document.querySelector('.delHabit_but').classList.remove('closed');
@@ -239,25 +260,25 @@ class App {
             this.page.header.prog_days.innerText = `Цель достигнута!`;
         }
     }
-
+    
     rerenderDays(activeHabit) {
         this.page.content.days_box.innerHTML = '';
-
+        
         if(!activeHabit) return;
-
+        
         for(const day in activeHabit.days){
             const el = document.createElement('div');
             el.classList.add('day');
             el.innerHTML = `<div class="day_h">
-                        <h3>День ${Number(day) + 1}</h3>
-                        <button class="del_but">
-                            <img src="./img/delete.svg" alt="">
-                        </button>
-                    </div>
-                    <hr>
-                    <div class="day_comm">
-                        ${activeHabit.days[day].comment}
-                    </div>`;
+            <h3>День ${Number(day) + 1}</h3>
+            <button class="del_but">
+            <img src="./img/delete.svg" alt="">
+            </button>
+            </div>
+            <hr>
+            <div class="day_comm">
+            ${activeHabit.days[day].comment}
+            </div>`;
             
             el.querySelector('.del_but').addEventListener('click', () => {
                 this.store.delDay(activeHabit.id, day);
@@ -272,26 +293,26 @@ class App {
                 this.store.addDay(activeHabit, comment);
                 this.rerender();
             });
-
+            
             const nextDayNum = activeHabit.days.length + 1;
             this.page.content.days_box.appendChild(nextDayForm.render(nextDayNum));
         }
     }
-
+    
     rerender() {
         const activeHabit = this.store.activeHabit;
         if(!activeHabit) return;
-
+        
         this.rerenderMenu(activeHabit);
         this.renderHead(activeHabit);
         this.rerenderDays(activeHabit);
     }
-
+    
     rerenderEmpty() {
         this.page.header.h.innerText = 'Создайте свою первую привычку!';
         this.page.header.prog_days.innerText = '?';
         document.querySelector('.delHabit_but').classList.add('closed');
-
+        
         this.page.content.days_box.innerHTML = '';
         this.page.menu.innerHTML = '';
     }
