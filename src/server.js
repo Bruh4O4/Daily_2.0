@@ -40,10 +40,13 @@ app.get('/habits', async (req, res) => {
 });
 
 app.post('/habits', async (req, res) => {
-    const { habitsArray } = req.body;
-
+    const habitsArray = req.body;
+    
     try {
         const promises = habitsArray.map(habit => {
+            const daysData = (habit.days && Array.isArray(habit.days)) 
+                ? JSON.stringify(habit.days) 
+                : '[]';
             const sql = `
                 INSERT INTO habits (id, name, target, days)
                 VALUES ($1, $2, $3, $4)
@@ -53,7 +56,7 @@ app.post('/habits', async (req, res) => {
                     target = EXCLUDED.target,
                     days = EXCLUDED.days
             `
-            return pool.query(sql, [habit.id, habit.name, habit.target, habit.days])
+            return pool.query(sql, [habit.id, habit.name, habit.target, daysData])
         });
 
         const activeIds = habitsArray.map(h => h.id);
